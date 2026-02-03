@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"io"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -34,15 +35,15 @@ func TestExecute_Lifecycle(t *testing.T) {
 	statusChan := make(chan svc.Status, 5) // Buffer to prevent blocking
 
 	// Handlers
-	startCalled := false
-	stopCalled := false
+	var startCalled atomic.Bool
+	var stopCalled atomic.Bool
 	start := func(ctx context.Context) error {
-		startCalled = true
+		startCalled.Store(true)
 		<-ctx.Done() // Block until canceled
 		return nil
 	}
 	stop := func() error {
-		stopCalled = true
+		stopCalled.Store(true)
 		return nil
 	}
 
@@ -65,7 +66,7 @@ func TestExecute_Lifecycle(t *testing.T) {
 
 	// Wait a bit to ensure start handler is called
 	time.Sleep(100 * time.Millisecond)
-	assert.True(t, startCalled)
+	assert.True(t, startCalled.Load())
 
 	// Send Stop command
 	reqChan <- svc.ChangeRequest{Cmd: svc.Stop, CurrentStatus: status}
@@ -80,5 +81,5 @@ func TestExecute_Lifecycle(t *testing.T) {
 
 	// Ensure Execute returns
 	<-done
-	assert.True(t, stopCalled)
+	assert.True(t, stopCalled.Load())
 }

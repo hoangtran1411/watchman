@@ -27,8 +27,6 @@ const (
 // Service represents the Windows service.
 type Service struct {
 	cfg          *config.Config
-	ctx          context.Context
-	cancel       context.CancelFunc
 	startHandler func(ctx context.Context) error
 	stopHandler  func() error
 	logger       zerolog.Logger
@@ -69,12 +67,13 @@ func (s *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 	changes <- svc.Status{State: svc.StartPending}
 
 	// Create context for the service
-	s.ctx, s.cancel = context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Start the service logic in a goroutine
 	errChan := make(chan error, 1)
 	go func() {
-		errChan <- s.startHandler(s.ctx)
+		errChan <- s.startHandler(ctx)
 	}()
 
 	// Report running status
@@ -104,7 +103,7 @@ func (s *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 				changes <- svc.Status{State: svc.StopPending}
 
 				// Cancel context to signal stop
-				s.cancel()
+				cancel()
 
 				// Call stop handler
 				if s.stopHandler != nil {
