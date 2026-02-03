@@ -214,7 +214,7 @@ const (
   "version": "1.2.0",
   "commit": "abc123def",
   "build_date": "2026-02-03T10:00:00Z",
-  "go_version": "go1.24",
+  "go_version": "go1.25.6",
   "os": "windows",
   "arch": "amd64"
 }
@@ -739,7 +739,7 @@ version: "2"
 
 run:
   timeout: 5m
-  go: "1.24"
+  go: "1.25.6"
   modules-download-mode: readonly
 
 linters:

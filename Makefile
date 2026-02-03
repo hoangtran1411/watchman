@@ -46,12 +46,12 @@ clean:
 ## test: Run all tests
 test:
 	@echo "Running tests..."
-	go test -v -race -coverprofile=coverage.out ./...
+	go test -v -race -coverprofile coverage.out ./...
 
 ## test-short: Run tests without race detector
 test-short:
 	@echo "Running tests (short)..."
-	go test -v -coverprofile=coverage.out ./...
+	go test -v -coverprofile coverage.out ./...
 
 ## coverage: Show test coverage
 coverage: test
