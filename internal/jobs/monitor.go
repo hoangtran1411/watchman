@@ -32,14 +32,30 @@ type ServerResult struct {
 	Error      error
 }
 
+// JobQuerier defines the interface for database operations needed by Monitor.
+type JobQuerier interface {
+	Ping(ctx context.Context) error
+	Close() error
+	QueryFailedJobs(ctx context.Context, lookbackHours int) ([]database.FailedJob, error)
+}
+
+// DBFactory is a function that creates a JobQuerier.
+type DBFactory func(config.ServerConfig) (JobQuerier, error)
+
 // Monitor handles job monitoring operations.
 type Monitor struct {
-	cfg *config.Config
+	cfg       *config.Config
+	dbFactory DBFactory
 }
 
 // NewMonitor creates a new job monitor.
 func NewMonitor(cfg *config.Config) *Monitor {
-	return &Monitor{cfg: cfg}
+	return &Monitor{
+		cfg: cfg,
+		dbFactory: func(cfg config.ServerConfig) (JobQuerier, error) {
+			return database.New(cfg)
+		},
+	}
 }
 
 // CheckAll checks all enabled servers for failed jobs.
@@ -136,7 +152,7 @@ func (m *Monitor) checkSingleServer(ctx context.Context, server config.ServerCon
 	}
 
 	// Create database connection
-	db, err := database.New(server)
+	db, err := m.dbFactory(server)
 	if err != nil {
 		result.Error = err
 		return result

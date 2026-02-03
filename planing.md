@@ -930,28 +930,28 @@ jobs:
 
 ### Phase 1: Foundation (Day 1-2)
 - [x] Tạo `planing.md`
-- [ ] Khởi tạo Go module
-- [ ] Setup `.golangci.yml`
-- [ ] Setup GitHub Actions (CI/Release)
-- [ ] Tạo cấu trúc thư mục
+- [x] Khởi tạo Go module
+- [x] Setup `.golangci.yml`
+- [x] Setup GitHub Actions (CI/Release)
+- [x] Tạo cấu trúc thư mục
 
 ### Phase 2: Core Logic (Day 3-5)
-- [ ] Config management (Viper)
-- [ ] SQL Server connection
-- [ ] Job monitoring queries
-- [ ] Logger setup
+- [x] Config management (Viper)
+- [x] SQL Server connection
+- [x] Job monitoring queries
+- [x] Logger setup
 
 ### Phase 3: Features (Day 6-8)
-- [ ] Cobra CLI commands
-- [ ] Windows Toast Notification
-- [ ] Scheduler (8:00 AM daily)
-- [ ] Windows Service wrapper
+- [x] Cobra CLI commands
+- [x] Windows Toast Notification
+- [x] Scheduler (8:00 AM daily)
+- [x] Windows Service wrapper
 
 ### Phase 4: Testing & Polish (Day 9-10)
-- [ ] Unit tests (80%+ coverage)
-- [ ] Integration tests
-- [ ] Documentation
-- [ ] First release
+- [x] Unit tests (80%+ coverage)
+- [x] Integration tests (Manual)
+- [x] Documentation
+- [x] First release
 
 ---
 
@@ -959,15 +959,15 @@ jobs:
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| Multi-server monitoring | 🔲 | Monitor nhiều SQL Server instances |
-| YAML configuration | 🔲 | File config dễ đọc, dễ chỉnh sửa |
-| Scheduled check (8:00 AM) | 🔲 | Kiểm tra job failures hàng ngày |
-| Windows Toast Notification | 🔲 | Thông báo với server name (@@SERVERNAME) |
-| Auto-update on startup | 🔲 | Check GitHub releases khi khởi động |
-| Manual update (`update -y`) | 🔲 | Cập nhật thủ công khi cần |
-| Config reload (`reload`) | 🔲 | Tải lại config không cần restart |
-| Windows Service | 🔲 | Chạy nền như Windows Service |
-| Graceful shutdown | 🔲 | Tắt đúng cách khi stop service |
+| Multi-server monitoring | ✅ | Monitor nhiều SQL Server instances |
+| YAML configuration | ✅ | File config dễ đọc, dễ chỉnh sửa |
+| Scheduled check (8:00 AM) | ✅ | Kiểm tra job failures hàng ngày |
+| Windows Toast Notification | ✅ | Thông báo với server name (@@SERVERNAME) |
+| Auto-update on startup | ✅ | Check GitHub releases khi khởi động |
+| Manual update (`update -y`) | ✅ | Cập nhật thủ công khi cần |
+| Config reload (`reload`) | ✅ | Tải lại config không cần restart |
+| Windows Service | ✅ | Chạy nền như Windows Service |
+| Graceful shutdown | ✅ | Tắt đúng cách khi stop service |
 
 ---
 

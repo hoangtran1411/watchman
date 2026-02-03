@@ -22,10 +22,28 @@ type UpdateResult struct {
 	Error           string `json:"error,omitempty"`
 }
 
+// SelfUpdater defines the interface for self-update operations.
+type SelfUpdater interface {
+	DetectLatest(slug string) (*selfupdate.Release, bool, error)
+	UpdateTo(url, cmdPath string) error
+}
+
+// DefaultSelfUpdater implements SelfUpdater using the selfupdate package.
+type DefaultSelfUpdater struct{}
+
+func (u *DefaultSelfUpdater) DetectLatest(slug string) (*selfupdate.Release, bool, error) {
+	return selfupdate.DetectLatest(slug)
+}
+
+func (u *DefaultSelfUpdater) UpdateTo(url, cmdPath string) error {
+	return selfupdate.UpdateTo(url, cmdPath)
+}
+
 // Updater handles auto-update functionality.
 type Updater struct {
 	cfg            config.UpdateConfig
 	currentVersion string
+	selfUpdater    SelfUpdater
 }
 
 // NewUpdater creates a new updater.
@@ -33,6 +51,7 @@ func NewUpdater(cfg config.UpdateConfig, currentVersion string) *Updater {
 	return &Updater{
 		cfg:            cfg,
 		currentVersion: currentVersion,
+		selfUpdater:    &DefaultSelfUpdater{},
 	}
 }
 
@@ -43,7 +62,7 @@ func (u *Updater) CheckForUpdate(ctx context.Context) (*UpdateResult, error) {
 	}
 
 	// Get the latest release
-	latest, found, err := selfupdate.DetectLatest(ctx, u.cfg.GithubRepo)
+	latest, found, err := u.selfUpdater.DetectLatest(u.cfg.GithubRepo)
 	if err != nil {
 		result.Error = err.Error()
 		return result, err
@@ -73,7 +92,7 @@ func (u *Updater) Update(ctx context.Context) (*UpdateResult, error) {
 	}
 
 	// Get the latest release
-	latest, found, err := selfupdate.DetectLatest(ctx, u.cfg.GithubRepo)
+	latest, found, err := u.selfUpdater.DetectLatest(u.cfg.GithubRepo)
 	if err != nil {
 		result.Error = err.Error()
 		return result, err
@@ -97,11 +116,11 @@ func (u *Updater) Update(ctx context.Context) (*UpdateResult, error) {
 	// Check OS/Arch compatibility
 	if runtime.GOOS != "windows" || runtime.GOARCH != "amd64" {
 		result.Error = fmt.Sprintf("unsupported platform: %s/%s", runtime.GOOS, runtime.GOARCH)
-		return result, fmt.Errorf(result.Error)
+		return result, fmt.Errorf("%s", result.Error)
 	}
 
 	// Apply update
-	if err := selfupdate.UpdateTo(ctx, latest.AssetURL, ""); err != nil {
+	if err := u.selfUpdater.UpdateTo(latest.AssetURL, ""); err != nil {
 		result.Error = err.Error()
 		return result, err
 	}

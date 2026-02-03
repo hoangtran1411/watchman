@@ -11,14 +11,30 @@ import (
 	"github.com/hoangtran1411/watchman/internal/database"
 )
 
+// ToastPusher abstracts the toast notification sending.
+type ToastPusher interface {
+	Push(notification toast.Notification) error
+}
+
+// DefaultToastPusher is the default implementation that sends actual toasts.
+type DefaultToastPusher struct{}
+
+func (p *DefaultToastPusher) Push(notification toast.Notification) error {
+	return notification.Push()
+}
+
 // Notifier handles Windows Toast notifications.
 type Notifier struct {
-	cfg config.NotificationConfig
+	cfg    config.NotificationConfig
+	pusher ToastPusher
 }
 
 // NewNotifier creates a new notification handler.
 func NewNotifier(cfg config.NotificationConfig) *Notifier {
-	return &Notifier{cfg: cfg}
+	return &Notifier{
+		cfg:    cfg,
+		pusher: &DefaultToastPusher{},
+	}
 }
 
 // NotifyFailedJobs sends a notification about failed jobs.
@@ -66,11 +82,10 @@ func (n *Notifier) sendGroupedNotification(jobs []database.FailedJob) error {
 	}
 
 	// Set sound
-	if n.cfg.Sound.Enabled {
-		notification.Audio = n.getAudioType()
-	}
+	// Set sound
+	n.setAudio(&notification)
 
-	return notification.Push()
+	return n.pusher.Push(notification)
 }
 
 // sendSingleNotification sends a notification for a single failed job.
@@ -92,11 +107,9 @@ func (n *Notifier) sendSingleNotification(job database.FailedJob) error {
 		notification.Icon = n.cfg.IconPath
 	}
 
-	if n.cfg.Sound.Enabled {
-		notification.Audio = n.getAudioType()
-	}
+	n.setAudio(&notification)
 
-	return notification.Push()
+	return n.pusher.Push(notification)
 }
 
 // buildTitle builds the notification title.
@@ -144,21 +157,27 @@ func (n *Notifier) buildBody(jobs []database.FailedJob, serverJobs map[string][]
 	return strings.Join(lines, "\n")
 }
 
-// getAudioType returns the toast audio type based on config.
-func (n *Notifier) getAudioType() toast.Audio {
+// setAudio sets the audio for the notification based on config.
+func (n *Notifier) setAudio(notification *toast.Notification) {
+	if !n.cfg.Sound.Enabled {
+		return
+	}
+
 	switch n.cfg.Sound.Type {
 	case "mail":
-		return toast.Mail
+		notification.Audio = toast.Mail
 	case "reminder":
-		return toast.Reminder
+		notification.Audio = toast.Reminder
 	case "sms":
-		return toast.SMS
+		notification.Audio = toast.SMS
 	case "alarm":
-		return toast.Alarm
+		// toast.Alarm is not available in this version, using Default
+		notification.Audio = toast.Default
 	case "alarm2":
-		return toast.Alarm2
+		// toast.Alarm2 is not available in this version, using Default
+		notification.Audio = toast.Default
 	default:
-		return toast.Default
+		notification.Audio = toast.Default
 	}
 }
 
@@ -174,7 +193,7 @@ func (n *Notifier) NotifyUpdateAvailable(currentVersion, newVersion string) erro
 		notification.Icon = n.cfg.IconPath
 	}
 
-	return notification.Push()
+	return n.pusher.Push(notification)
 }
 
 // truncateMessage truncates a message to max length.
