@@ -17,8 +17,8 @@ on:
       - main
 
 env:
-  GO_VERSION: "1.24"
-  GOLANGCI_LINT_VERSION: "v2.0.2"
+  GO_VERSION: "1.25"
+  GOLANGCI_LINT_VERSION: "v2.8.0"
 
 # Cancel in-progress runs for same branch
 concurrency:
