@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/rs/zerolog"
 
 	"github.com/hoangtran1411/watchman/internal/config"
 )
@@ -18,10 +19,11 @@ type Scheduler struct {
 	cfg       *config.Config
 	location  *time.Location
 	handler   func(ctx context.Context) error
+	logger    zerolog.Logger
 }
 
 // NewScheduler creates a new scheduler.
-func NewScheduler(cfg *config.Config, handler func(ctx context.Context) error) (*Scheduler, error) {
+func NewScheduler(cfg *config.Config, handler func(ctx context.Context) error, logger zerolog.Logger) (*Scheduler, error) {
 	// Get timezone location
 	loc, err := cfg.GetLocation()
 	if err != nil {
@@ -41,6 +43,7 @@ func NewScheduler(cfg *config.Config, handler func(ctx context.Context) error) (
 		cfg:       cfg,
 		location:  loc,
 		handler:   handler,
+		logger:    logger,
 	}, nil
 }
 
@@ -104,8 +107,10 @@ func (s *Scheduler) runCheck(ctx context.Context) {
 
 	// Log error after all retries failed
 	if lastErr != nil {
-		// TODO: Log error using logger package
-		_ = lastErr
+		s.logger.Error().
+			Err(lastErr).
+			Int("attempts", attempts).
+			Msg("scheduled check failed after all retry attempts")
 	}
 }
 

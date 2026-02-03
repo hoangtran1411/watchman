@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
 
@@ -30,14 +31,16 @@ type Service struct {
 	cancel       context.CancelFunc
 	startHandler func(ctx context.Context) error
 	stopHandler  func() error
+	logger       zerolog.Logger
 }
 
 // NewService creates a new Windows service handler.
-func NewService(cfg *config.Config, start func(ctx context.Context) error, stop func() error) *Service {
+func NewService(cfg *config.Config, start func(ctx context.Context) error, stop func() error, logger zerolog.Logger) *Service {
 	return &Service{
 		cfg:          cfg,
 		startHandler: start,
 		stopHandler:  stop,
+		logger:       logger,
 	}
 }
 
@@ -85,8 +88,9 @@ func (s *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 		select {
 		case err := <-errChan:
 			if err != nil {
-				// Log error
-				_ = err
+				s.logger.Error().
+					Err(err).
+					Msg("service start handler failed")
 				return false, 1
 			}
 			return false, 0
@@ -104,7 +108,11 @@ func (s *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 
 				// Call stop handler
 				if s.stopHandler != nil {
-					_ = s.stopHandler()
+					if err := s.stopHandler(); err != nil {
+						s.logger.Warn().
+							Err(err).
+							Msg("stop handler returned error")
+					}
 				}
 
 				// Give some time for cleanup

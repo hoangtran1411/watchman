@@ -4,13 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"testing"
 
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/hoangtran1411/watchman/internal/config"
 )
+
+// testLogger returns a no-op logger for tests.
+func testLogger() zerolog.Logger {
+	return zerolog.New(io.Discard)
+}
 
 func TestNewScheduler(t *testing.T) {
 	cfg := &config.Config{
@@ -20,7 +27,7 @@ func TestNewScheduler(t *testing.T) {
 	}
 	handler := func(ctx context.Context) error { return nil }
 
-	s, err := NewScheduler(cfg, handler)
+	s, err := NewScheduler(cfg, handler, testLogger())
 	assert.NoError(t, err)
 	assert.NotNil(t, s)
 }
@@ -33,7 +40,7 @@ func TestNewScheduler_InvalidTimezone(t *testing.T) {
 	}
 	handler := func(ctx context.Context) error { return nil }
 
-	s, err := NewScheduler(cfg, handler)
+	s, err := NewScheduler(cfg, handler, testLogger())
 	assert.Error(t, err)
 	assert.Nil(t, s)
 }
@@ -47,7 +54,7 @@ func TestStart_InvalidTime(t *testing.T) {
 	}
 	handler := func(ctx context.Context) error { return nil }
 
-	s, err := NewScheduler(cfg, handler)
+	s, err := NewScheduler(cfg, handler, testLogger())
 	assert.NoError(t, err)
 
 	err = s.Start(context.Background())
@@ -85,7 +92,7 @@ func TestRunCheck_Retry(t *testing.T) {
 	mockHandler.On("Handle", mock.Anything).Return(errors.New("fail 2")).Once()
 	mockHandler.On("Handle", mock.Anything).Return(nil).Once()
 
-	s, _ := NewScheduler(cfg, mockHandler.Handle)
+	s, _ := NewScheduler(cfg, mockHandler.Handle, testLogger())
 
 	s.runCheck(context.Background())
 
@@ -106,7 +113,7 @@ func TestRunCheck_NoRetry(t *testing.T) {
 	mockHandler := new(MockHandler)
 	mockHandler.On("Handle", mock.Anything).Return(errors.New("fail")).Once()
 
-	s, _ := NewScheduler(cfg, mockHandler.Handle)
+	s, _ := NewScheduler(cfg, mockHandler.Handle, testLogger())
 
 	s.runCheck(context.Background())
 

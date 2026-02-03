@@ -2,21 +2,28 @@ package service
 
 import (
 	"context"
+	"io"
 	"testing"
 	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/sys/windows/svc"
 
 	"github.com/hoangtran1411/watchman/internal/config"
 )
 
+// testLogger returns a no-op logger for tests.
+func testLogger() zerolog.Logger {
+	return zerolog.New(io.Discard)
+}
+
 func TestNewService(t *testing.T) {
 	cfg := &config.Config{}
 	start := func(ctx context.Context) error { return nil }
 	stop := func() error { return nil }
 
-	s := NewService(cfg, start, stop)
+	s := NewService(cfg, start, stop, testLogger())
 	assert.NotNil(t, s)
 	assert.Equal(t, cfg, s.cfg)
 }
@@ -39,7 +46,7 @@ func TestExecute_Lifecycle(t *testing.T) {
 		return nil
 	}
 
-	s := NewService(&config.Config{}, start, stop)
+	s := NewService(&config.Config{}, start, stop, testLogger())
 
 	// Run Execute in a goroutine
 	done := make(chan bool)
