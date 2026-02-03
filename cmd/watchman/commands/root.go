@@ -2,20 +2,17 @@
 package commands
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-// Build info (set by main.go)
+// Build info (set by main.go).
 var (
 	version   = "dev"
 	commit    = "unknown"
 	buildDate = "unknown"
 )
 
-// Global flags
+// Global flags.
 var (
 	cfgFile string
 	output  string
@@ -88,14 +85,6 @@ Exit Codes:
 `)
 }
 
-// printError prints an error message and exits with the given code.
-func printError(msg string, code int) {
-	if !quiet {
-		fmt.Fprintln(os.Stderr, "Error:", msg)
-	}
-	os.Exit(code)
-}
-
 // getOutput returns the current output format.
 func getOutput() string {
 	return output
@@ -104,11 +93,6 @@ func getOutput() string {
 // isQuiet returns whether quiet mode is enabled.
 func isQuiet() bool {
 	return quiet
-}
-
-// isVerbose returns whether verbose mode is enabled.
-func isVerbose() bool {
-	return verbose
 }
 
 // getConfigFile returns the config file path.

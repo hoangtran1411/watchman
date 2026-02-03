@@ -18,6 +18,11 @@ type VersionInfo struct {
 	Arch      string `json:"arch"`
 }
 
+const (
+	// OutputJSON is the JSON output format.
+	OutputJSON = "json"
+)
+
 // versionCmd represents the version command.
 var versionCmd = &cobra.Command{
 	Use:   "version",
@@ -47,7 +52,7 @@ func runVersion(cmd *cobra.Command, args []string) {
 		Arch:      runtime.GOARCH,
 	}
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		printJSON(info)
 		return
 	}

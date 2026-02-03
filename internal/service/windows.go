@@ -53,7 +53,11 @@ func (s *Service) Run(isDebug bool) error {
 		err = svc.Run(ServiceName, s)
 	}
 
-	return err
+	if err != nil {
+		return fmt.Errorf("service failed: %w", err)
+	}
+
+	return nil
 }
 
 // Execute implements svc.Handler interface.
@@ -117,7 +121,11 @@ func (s *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes cha
 
 // IsInteractive checks if running interactively (not as service).
 func IsInteractive() (bool, error) {
-	return svc.IsWindowsService()
+	isService, err := svc.IsWindowsService()
+	if err != nil {
+		return false, fmt.Errorf("failed to check service status: %w", err)
+	}
+	return isService, nil
 }
 
 // Install installs the service.

@@ -42,7 +42,7 @@ func init() {
 func runUpdate(cmd *cobra.Command, args []string) error {
 	// TODO: Implement update logic using selfupdate library
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"current_version":  version,
 			"latest_version":   "unknown",

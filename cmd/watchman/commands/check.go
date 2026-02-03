@@ -66,7 +66,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"status":              "success",
 			"message":             "Check command not yet implemented",

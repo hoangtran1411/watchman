@@ -14,24 +14,24 @@ import (
 
 // Config represents the complete application configuration.
 type Config struct {
-	Servers      []ServerConfig      `mapstructure:"servers"`
-	Scheduler    SchedulerConfig     `mapstructure:"scheduler"`
-	Notification NotificationConfig  `mapstructure:"notification"`
-	Logging      LoggingConfig       `mapstructure:"logging"`
-	Monitoring   MonitoringConfig    `mapstructure:"monitoring"`
-	Update       UpdateConfig        `mapstructure:"update"`
+	Servers      []ServerConfig     `mapstructure:"servers"`
+	Scheduler    SchedulerConfig    `mapstructure:"scheduler"`
+	Notification NotificationConfig `mapstructure:"notification"`
+	Logging      LoggingConfig      `mapstructure:"logging"`
+	Monitoring   MonitoringConfig   `mapstructure:"monitoring"`
+	Update       UpdateConfig       `mapstructure:"update"`
 }
 
 // ServerConfig represents a SQL Server instance configuration.
 type ServerConfig struct {
-	Name     string       `mapstructure:"name"`
-	Enabled  bool         `mapstructure:"enabled"`
-	Host     string       `mapstructure:"host"`
-	Port     int          `mapstructure:"port"`
-	Database string       `mapstructure:"database"`
-	Auth     AuthConfig   `mapstructure:"auth"`
-	Options  DBOptions    `mapstructure:"options"`
-	Jobs     JobsFilter   `mapstructure:"jobs"`
+	Name     string     `mapstructure:"name"`
+	Enabled  bool       `mapstructure:"enabled"`
+	Host     string     `mapstructure:"host"`
+	Port     int        `mapstructure:"port"`
+	Database string     `mapstructure:"database"`
+	Auth     AuthConfig `mapstructure:"auth"`
+	Options  DBOptions  `mapstructure:"options"`
+	Jobs     JobsFilter `mapstructure:"jobs"`
 }
 
 // AuthConfig represents authentication configuration.
@@ -79,7 +79,7 @@ type NotificationConfig struct {
 
 // GroupingConfig represents notification grouping configuration.
 type GroupingConfig struct {
-	Enabled               bool `mapstructure:"enabled"`
+	Enabled                bool `mapstructure:"enabled"`
 	MaxJobsPerNotification int  `mapstructure:"max_jobs_per_notification"`
 }
 
@@ -149,7 +149,7 @@ func DefaultConfig() *Config {
 		Notification: NotificationConfig{
 			AppID: "Watchman",
 			Grouping: GroupingConfig{
-				Enabled:               true,
+				Enabled:                true,
 				MaxJobsPerNotification: 5,
 			},
 			Sound: SoundConfig{
@@ -295,7 +295,11 @@ func (c *Config) GetLocation() (*time.Location, error) {
 	if c.Scheduler.Timezone == "" || c.Scheduler.Timezone == "Local" {
 		return time.Local, nil
 	}
-	return time.LoadLocation(c.Scheduler.Timezone)
+	loc, err := time.LoadLocation(c.Scheduler.Timezone)
+	if err != nil {
+		return nil, fmt.Errorf("invalid timezone '%s': %w", c.Scheduler.Timezone, err)
+	}
+	return loc, nil
 }
 
 // setDefaults sets default values in viper.

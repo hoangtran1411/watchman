@@ -2,6 +2,7 @@ package updater
 
 import (
 	"context"
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/hoangtran1411/watchman/internal/config"
 )
 
-// MockSelfUpdater is a mock implementation of SelfUpdater
+// MockSelfUpdater is a mock implementation of SelfUpdater.
 type MockSelfUpdater struct {
 	mock.Mock
 }
@@ -28,7 +29,10 @@ func (m *MockSelfUpdater) DetectLatest(slug string) (*selfupdate.Release, bool, 
 
 func (m *MockSelfUpdater) UpdateTo(url, cmdPath string) error {
 	args := m.Called(url, cmdPath)
-	return args.Error(0)
+	if err := args.Error(0); err != nil {
+		return fmt.Errorf("mock: %w", err)
+	}
+	return nil
 }
 
 func TestCheckForUpdate_Available(t *testing.T) {

@@ -19,8 +19,12 @@ type ToastPusher interface {
 // DefaultToastPusher is the default implementation that sends actual toasts.
 type DefaultToastPusher struct{}
 
+// Push sends the toast notification.
 func (p *DefaultToastPusher) Push(notification toast.Notification) error {
-	return notification.Push()
+	if err := notification.Push(); err != nil {
+		return fmt.Errorf("failed to push notification: %w", err)
+	}
+	return nil
 }
 
 // Notifier handles Windows Toast notifications.

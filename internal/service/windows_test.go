@@ -31,7 +31,7 @@ func TestExecute_Lifecycle(t *testing.T) {
 	stopCalled := false
 	start := func(ctx context.Context) error {
 		startCalled = true
-		<-ctx.Done() // Block until cancelled
+		<-ctx.Done() // Block until canceled
 		return nil
 	}
 	stop := func() error {

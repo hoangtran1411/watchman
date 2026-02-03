@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -12,14 +13,17 @@ import (
 	"github.com/hoangtran1411/watchman/internal/database"
 )
 
-// MockToastPusher is a mock implementation of ToastPusher
+// MockToastPusher is a mock implementation of ToastPusher.
 type MockToastPusher struct {
 	mock.Mock
 }
 
 func (m *MockToastPusher) Push(notification toast.Notification) error {
 	args := m.Called(notification)
-	return args.Error(0)
+	if err := args.Error(0); err != nil {
+		return fmt.Errorf("mock: %w", err)
+	}
+	return nil
 }
 
 func TestNotifyFailedJobs_NoJobs(t *testing.T) {

@@ -29,7 +29,7 @@ func init() {
 func runReload(cmd *cobra.Command, args []string) error {
 	// TODO: Implement reload logic (signal to service)
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"status":  "success",
 			"message": "Reload not yet implemented",

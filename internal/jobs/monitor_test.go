@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -13,24 +14,34 @@ import (
 	"github.com/hoangtran1411/watchman/internal/database"
 )
 
-// MockJobQuerier is a mock implementation of JobQuerier
+// MockJobQuerier is a mock implementation of JobQuerier.
 type MockJobQuerier struct {
 	mock.Mock
 }
 
 func (m *MockJobQuerier) Ping(ctx context.Context) error {
 	args := m.Called(ctx)
-	return args.Error(0)
+	if err := args.Error(0); err != nil {
+		return fmt.Errorf("mock: %w", err)
+	}
+	return nil
 }
 
 func (m *MockJobQuerier) Close() error {
 	args := m.Called()
-	return args.Error(0)
+	if err := args.Error(0); err != nil {
+		return fmt.Errorf("mock: %w", err)
+	}
+	return nil
 }
 
 func (m *MockJobQuerier) QueryFailedJobs(ctx context.Context, lookbackHours int) ([]database.FailedJob, error) {
 	args := m.Called(ctx, lookbackHours)
-	return args.Get(0).([]database.FailedJob), args.Error(1)
+	err := args.Error(1)
+	if err != nil {
+		err = fmt.Errorf("mock: %w", err)
+	}
+	return args.Get(0).([]database.FailedJob), err
 }
 
 func TestCheckAll(t *testing.T) {

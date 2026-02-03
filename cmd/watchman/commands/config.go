@@ -55,7 +55,7 @@ func init() {
 func runConfigShow(cmd *cobra.Command, args []string) error {
 	// TODO: Implement config show logic
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"status":  "success",
 			"message": "Config show not yet implemented",
@@ -75,7 +75,7 @@ func runConfigShow(cmd *cobra.Command, args []string) error {
 func runConfigValidate(cmd *cobra.Command, args []string) error {
 	// TODO: Implement config validation logic
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"valid":    true,
 			"message":  "Config validation not yet implemented",

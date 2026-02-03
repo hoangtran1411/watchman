@@ -52,7 +52,7 @@ func runService(cmd *cobra.Command, args []string) error {
 func runStart(cmd *cobra.Command, args []string) error {
 	// TODO: Implement start command (call sc.exe start)
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"status":  "success",
 			"message": "Start command not yet implemented",
@@ -72,7 +72,7 @@ func runStart(cmd *cobra.Command, args []string) error {
 func runStop(cmd *cobra.Command, args []string) error {
 	// TODO: Implement stop command (call sc.exe stop)
 
-	if getOutput() == "json" {
+	if getOutput() == OutputJSON {
 		result := map[string]interface{}{
 			"status":  "success",
 			"message": "Stop command not yet implemented",

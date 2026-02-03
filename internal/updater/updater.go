@@ -31,12 +31,21 @@ type SelfUpdater interface {
 // DefaultSelfUpdater implements SelfUpdater using the selfupdate package.
 type DefaultSelfUpdater struct{}
 
+// DetectLatest finds the latest release for the given slug.
 func (u *DefaultSelfUpdater) DetectLatest(slug string) (*selfupdate.Release, bool, error) {
-	return selfupdate.DetectLatest(slug)
+	rel, found, err := selfupdate.DetectLatest(slug)
+	if err != nil {
+		return nil, false, fmt.Errorf("failed to detect latest release: %w", err)
+	}
+	return rel, found, nil
 }
 
+// UpdateTo applies the update from the given URL.
 func (u *DefaultSelfUpdater) UpdateTo(url, cmdPath string) error {
-	return selfupdate.UpdateTo(url, cmdPath)
+	if err := selfupdate.UpdateTo(url, cmdPath); err != nil {
+		return fmt.Errorf("failed to update binary: %w", err)
+	}
+	return nil
 }
 
 // Updater handles auto-update functionality.
@@ -131,7 +140,7 @@ func (u *Updater) Update(ctx context.Context) (*UpdateResult, error) {
 
 // cleanVersion removes 'v' prefix from version string.
 func cleanVersion(v string) string {
-	if len(v) > 0 && v[0] == 'v' {
+	if v != "" && v[0] == 'v' {
 		return v[1:]
 	}
 	return v

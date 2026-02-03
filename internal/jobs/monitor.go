@@ -157,11 +157,14 @@ func (m *Monitor) checkSingleServer(ctx context.Context, server config.ServerCon
 		result.Error = err
 		return result
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 
 	// Ping to check connectivity
-	if err := db.Ping(ctx); err != nil {
-		result.Error = err
+	// Ping to check connectivity
+	if pingErr := db.Ping(ctx); pingErr != nil {
+		result.Error = pingErr
 		return result
 	}
 

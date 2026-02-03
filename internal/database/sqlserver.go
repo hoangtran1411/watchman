@@ -54,17 +54,24 @@ func New(server config.ServerConfig) (*DB, error) {
 }
 
 // Ping tests the database connection.
+// Ping tests the database connection.
 func (db *DB) Ping(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(db.server.Options.ConnectionTimeout)*time.Second)
 	defer cancel()
 
-	return db.conn.PingContext(ctx)
+	if err := db.conn.PingContext(ctx); err != nil {
+		return fmt.Errorf("ping failed: %w", err)
+	}
+	return nil
 }
 
 // Close closes the database connection.
+// Close closes the database connection.
 func (db *DB) Close() error {
 	if db.conn != nil {
-		return db.conn.Close()
+		if err := db.conn.Close(); err != nil {
+			return fmt.Errorf("close failed: %w", err)
+		}
 	}
 	return nil
 }
@@ -113,7 +120,9 @@ ORDER BY h.run_date DESC, h.run_time DESC
 	if err != nil {
 		return nil, fmt.Errorf("failed to query failed jobs: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close() // Ignore validation error on close
+	}()
 
 	var jobs []FailedJob
 	for rows.Next() {

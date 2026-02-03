@@ -52,6 +52,9 @@ func (s *Scheduler) Start(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("invalid check time %s: %w", checkTime, err)
 		}
+		if hour < 0 || minute < 0 {
+			return fmt.Errorf("time values cannot be negative")
+		}
 
 		_, err = s.scheduler.NewJob(
 			gocron.DailyJob(1, gocron.NewAtTimes(
@@ -72,7 +75,10 @@ func (s *Scheduler) Start(ctx context.Context) error {
 
 // Stop stops the scheduler.
 func (s *Scheduler) Stop() error {
-	return s.scheduler.Shutdown()
+	if err := s.scheduler.Shutdown(); err != nil {
+		return fmt.Errorf("failed to shutdown scheduler: %w", err)
+	}
+	return nil
 }
 
 // runCheck runs the handler with retry logic.
@@ -132,7 +138,7 @@ func (s *Scheduler) NextRun() (time.Time, error) {
 func parseTime(s string) (hour, minute int, err error) {
 	t, err := time.Parse("15:04", s)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("format must be HH:MM: %w", err)
 	}
 	return t.Hour(), t.Minute(), nil
 }

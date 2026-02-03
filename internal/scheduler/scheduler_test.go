@@ -3,6 +3,7 @@ package scheduler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -53,14 +54,17 @@ func TestStart_InvalidTime(t *testing.T) {
 	assert.Error(t, err)
 }
 
-// Mocking function execution for retry test
+// Mocking function execution for retry test.
 type MockHandler struct {
 	mock.Mock
 }
 
 func (m *MockHandler) Handle(ctx context.Context) error {
 	args := m.Called(ctx)
-	return args.Error(0)
+	if err := args.Error(0); err != nil {
+		return fmt.Errorf("mock: %w", err)
+	}
+	return nil
 }
 
 func TestRunCheck_Retry(t *testing.T) {

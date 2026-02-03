@@ -3,6 +3,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -67,8 +68,8 @@ func New(cfg config.LoggingConfig) (*Logger, error) {
 func newFileWriter(cfg config.FileLogConfig) (io.Writer, error) {
 	// Ensure log directory exists
 	dir := filepath.Dir(cfg.Path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return nil, err
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		return nil, fmt.Errorf("failed to create log directory: %w", err)
 	}
 
 	// Create rotating file writer

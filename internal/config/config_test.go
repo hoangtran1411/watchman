@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -41,8 +42,7 @@ func TestExpandEnvVar(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envName != "" {
-				os.Setenv(tt.envName, tt.envValue)
-				defer os.Unsetenv(tt.envName)
+				t.Setenv(tt.envName, tt.envValue)
 			}
 
 			got := expandEnvVar(tt.input)
@@ -53,12 +53,10 @@ func TestExpandEnvVar(t *testing.T) {
 	}
 }
 
-func TestConfigValidate(t *testing.T) {
+func TestConfigValidate_Valid(t *testing.T) {
 	tests := []struct {
-		name    string
-		config  Config
-		wantErr bool
-		errMsg  string
+		name   string
+		config Config
 	}{
 		{
 			name: "valid config",
@@ -80,15 +78,30 @@ func TestConfigValidate(t *testing.T) {
 					LookbackHours: 24,
 				},
 			},
-			wantErr: false,
 		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.config.Validate(); err != nil {
+				t.Errorf("Validate() unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestConfigValidate_Invalid(t *testing.T) {
+	tests := []struct {
+		name   string
+		config Config
+		errMsg string
+	}{
 		{
 			name: "no servers",
 			config: Config{
 				Servers: []ServerConfig{},
 			},
-			wantErr: true,
-			errMsg:  "no servers configured",
+			errMsg: "no servers configured",
 		},
 		{
 			name: "missing server name",
@@ -97,8 +110,7 @@ func TestConfigValidate(t *testing.T) {
 					{Host: "localhost", Port: 1433, Auth: AuthConfig{Type: "sql"}},
 				},
 			},
-			wantErr: true,
-			errMsg:  "name is required",
+			errMsg: "name is required",
 		},
 		{
 			name: "invalid port",
@@ -107,8 +119,7 @@ func TestConfigValidate(t *testing.T) {
 					{Name: "TEST", Host: "localhost", Port: 0, Auth: AuthConfig{Type: "sql"}},
 				},
 			},
-			wantErr: true,
-			errMsg:  "invalid port",
+			errMsg: "invalid port",
 		},
 		{
 			name: "invalid auth type",
@@ -117,8 +128,7 @@ func TestConfigValidate(t *testing.T) {
 					{Name: "TEST", Host: "localhost", Port: 1433, Auth: AuthConfig{Type: "invalid"}},
 				},
 			},
-			wantErr: true,
-			errMsg:  "auth type must be",
+			errMsg: "auth type must be",
 		},
 		{
 			name: "invalid check time",
@@ -130,8 +140,7 @@ func TestConfigValidate(t *testing.T) {
 					CheckTimes: []string{"invalid"},
 				},
 			},
-			wantErr: true,
-			errMsg:  "invalid check time format",
+			errMsg: "invalid check time format",
 		},
 		{
 			name: "no check times",
@@ -143,22 +152,19 @@ func TestConfigValidate(t *testing.T) {
 					CheckTimes: []string{},
 				},
 			},
-			wantErr: true,
-			errMsg:  "no check times configured",
+			errMsg: "no check times configured",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.config.Validate()
-			if tt.wantErr {
-				if err == nil {
-					t.Errorf("Validate() expected error containing %q, got nil", tt.errMsg)
-				}
-			} else {
-				if err != nil {
-					t.Errorf("Validate() unexpected error: %v", err)
-				}
+			if err == nil {
+				t.Errorf("Validate() expected error containing %q, got nil", tt.errMsg)
+				return
+			}
+			if !strings.Contains(err.Error(), tt.errMsg) {
+				t.Errorf("Validate() error = %v, want substring %q", err, tt.errMsg)
 			}
 		})
 	}
@@ -231,7 +237,7 @@ scheduler:
 monitoring:
   lookback_hours: 24
 `
-	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+	if err := os.WriteFile(configPath, []byte(configContent), 0o600); err != nil {
 		t.Fatalf("failed to create temp config: %v", err)
 	}
 

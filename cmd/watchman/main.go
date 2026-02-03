@@ -9,7 +9,7 @@ import (
 	"github.com/hoangtran1411/watchman/cmd/watchman/commands"
 )
 
-// Build-time variables (injected via ldflags)
+// Build-time variables (injected via ldflags).
 var (
 	Version   = "dev"
 	Commit    = "unknown"
