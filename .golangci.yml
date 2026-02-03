@@ -19,7 +19,6 @@ linters:
     - gosec           # Security-oriented linting
     - govet           # Reports suspicious constructs
     - staticcheck     # Go static analysis
-    - typecheck       # Type checking
     - bodyclose       # Check HTTP response body is closed
     - nilerr          # Finds code that returns nil even if error is not nil
     - noctx           # Finds HTTP requests without context.Context
