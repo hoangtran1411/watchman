@@ -14,13 +14,13 @@ Xây dựng một **Windows Service** bằng Go sử dụng Cobra CLI để:
 ## 📁 Cấu trúc dự án
 
 ```
-watchmen/
+watchman/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml              # CI workflow (lint, test, build)
 │       └── release.yml         # Release workflow (build & publish)
 ├── cmd/
-│   └── watchmen/
+│   └── watchman/
 │       ├── main.go             # CLI entry point
 │       ├── root.go             # Root command
 │       ├── install.go          # Install service command
@@ -86,35 +86,35 @@ watchmen/
 
 ```bash
 # Install as Windows Service
-watchmen install
+watchman install
 
 # Uninstall Windows Service
-watchmen uninstall
+watchman uninstall
 
 # Start service
-watchmen start
+watchman start
 
 # Stop service
-watchmen stop
+watchman stop
 
 # Run once (manual check)
-watchmen check
+watchman check
 
 # Show version
-watchmen version
+watchman version
 
 # Show configuration
-watchmen config show
+watchman config show
 
 # Validate configuration
-watchmen config validate
+watchman config validate
 
 # Reload configuration (without restart service)
-watchmen reload
+watchman reload
 
 # Check for updates and apply
-watchmen update        # Check for new version
-watchmen update -y     # Auto-apply update without confirmation
+watchman update        # Check for new version
+watchman update -y     # Auto-apply update without confirmation
 ```
 
 ### Auto-Update Feature (Required)
@@ -122,7 +122,7 @@ watchmen update -y     # Auto-apply update without confirmation
 | Trigger | Behavior |
 |---------|----------|
 | **Service Start** | Check GitHub releases for new version |
-| **Manual** | `watchmen update -y` to force update |
+| **Manual** | `watchman update -y` to force update |
 | **Notification** | Toast notification when update available |
 
 ---
@@ -185,7 +185,7 @@ const (
 
 ### JSON Output Examples
 
-**`watchmen check --output json`**
+**`watchman check --output json`**
 
 ```json
 {
@@ -207,7 +207,7 @@ const (
 }
 ```
 
-**`watchmen version --output json`**
+**`watchman version --output json`**
 
 ```json
 {
@@ -220,7 +220,7 @@ const (
 }
 ```
 
-**`watchmen config validate --output json`**
+**`watchman config validate --output json`**
 
 ```json
 {
@@ -238,16 +238,16 @@ const (
 
 ### Comprehensive Help Format
 
-**Root command: `watchmen --help`**
+**Root command: `watchman --help`**
 
 ```
-Watchmen - SQL Server Agent Job Monitor
+Watchman - SQL Server Agent Job Monitor
 
 A Windows service that monitors SQL Server Agent jobs and sends 
 Windows Toast notifications when jobs fail.
 
 Usage:
-  watchmen [command]
+  watchman [command]
 
 Available Commands:
   check       Check for failed jobs (manual run)
@@ -261,7 +261,7 @@ Available Commands:
   version     Show version information
 
 Flags:
-  -c, --config string   Config file path (default "%ProgramData%\Watchmen\config.yaml")
+  -c, --config string   Config file path (default "%ProgramData%\Watchman\config.yaml")
   -h, --help            Show help for command
   -o, --output string   Output format: text, json (default "text")
   -q, --quiet           Suppress all output except errors
@@ -269,16 +269,16 @@ Flags:
 
 Examples:
   # Check for failed jobs
-  watchmen check
+  watchman check
 
   # Check with JSON output (for AI Agents/scripting)
-  watchmen check --output json
+  watchman check --output json
 
   # Install service with custom config
-  watchmen install --config D:\configs\watchmen.yaml
+  watchman install --config D:\configs\watchman.yaml
 
   # Force update without confirmation
-  watchmen update --yes
+  watchman update --yes
 
 Exit Codes:
   0  Success / No failed jobs
@@ -287,10 +287,10 @@ Exit Codes:
   3  Connection error (all servers unreachable)
   4  Internal error
 
-Use "watchmen [command] --help" for more information about a command.
+Use "watchman [command] --help" for more information about a command.
 ```
 
-**Subcommand: `watchmen check --help`**
+**Subcommand: `watchman check --help`**
 
 ```
 Check for failed SQL Server Agent jobs
@@ -300,7 +300,7 @@ jobs within the lookback period. By default, shows results in
 human-readable format. Use --output json for machine-readable output.
 
 Usage:
-  watchmen check [flags]
+  watchman check [flags]
 
 Flags:
   -h, --help              Show help
@@ -317,25 +317,25 @@ Global Flags:
 
 Examples:
   # Check all servers
-  watchmen check
+  watchman check
 
   # Check specific server
-  watchmen check --server PROD-SQL01
+  watchman check --server PROD-SQL01
 
   # Check and send notification
-  watchmen check --notify
+  watchman check --notify
 
   # JSON output for scripting/AI Agents
-  watchmen check --output json
+  watchman check --output json
 
   # JSON output piped to jq
-  watchmen check --output json | jq '.failed_jobs[] | .job_name'
+  watchman check --output json | jq '.failed_jobs[] | .job_name'
 
   # Check with custom lookback period
-  watchmen check --lookback 48
+  watchman check --lookback 48
 
   # Quiet mode for scripts (check exit code only)
-  watchmen check --quiet && echo "No failures" || echo "Has failures"
+  watchman check --quiet && echo "No failures" || echo "Has failures"
 ```
 
 ### Design Principles
@@ -377,7 +377,7 @@ servers:
     database: "msdb"
     auth:
       type: "sql"  # sql | windows
-      username: "watchmen_svc"
+      username: "watchman_svc"
       password: "${PROD_SQL_PASSWORD}"  # Environment variable
     options:
       encrypt: true
@@ -474,7 +474,7 @@ logging:
   # File logging
   file:
     enabled: true
-    path: "logs/watchmen.log"
+    path: "logs/watchman.log"
     max_size_mb: 10
     max_backups: 5
     max_age_days: 30
@@ -575,9 +575,9 @@ notification := toast.Notification{
 notification := toast.Notification{
     AppID:   "Watchmen",
     Title:   "🔄 Update Available",
-    Message: "Watchmen v1.2.0 is available (current: v1.1.0)\nRun 'watchmen update -y' to apply",
+    Message: "Watchmen v1.2.0 is available (current: v1.1.0)\nRun 'watchman update -y' to apply",
     Actions: []toast.Action{
-        {Type: "protocol", Label: "Update Now", Arguments: "watchmen://update"},
+        {Type: "protocol", Label: "Update Now", Arguments: "watchman://update"},
     },
 }
 ```
@@ -622,7 +622,7 @@ notification := toast.Notification{
 │  2. Check if service already exists → Upgrade mode          │
 │  3. Create installation directory                           │
 │     %ProgramData%\Watchmen\                                  │
-│  4. Copy watchmen.exe to installation directory             │
+│  4. Copy watchman.exe to installation directory             │
 │  5. Copy config.example.yaml → config.yaml (if not exists)  │
 │  6. Create logs directory                                   │
 │  7. Register Windows Service (sc.exe create)                │
@@ -636,7 +636,7 @@ notification := toast.Notification{
 - Detect existing installation
 - Stop service
 - Backup config.yaml → config.yaml.backup
-- Replace watchmen.exe
+- Replace watchman.exe
 - Start service
 - Verify upgrade
 
@@ -690,7 +690,7 @@ pause
 
 [✓] Administrator privileges confirmed
 [✓] Creating installation directory...
-[✓] Copying watchmen.exe...
+[✓] Copying watchman.exe...
 [✓] Creating default configuration...
 [✓] Registering Windows Service...
 [✓] Setting service to Auto-Start (Delayed)...
@@ -707,7 +707,7 @@ pause
    
    Next steps:
    1. Edit config.yaml to add your SQL Server(s)
-   2. Run: watchmen reload (to apply changes)
+   2. Run: watchman reload (to apply changes)
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -876,11 +876,11 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Build
-        run: go build -ldflags="-s -w" -o watchmen.exe ./cmd/watchmen
+        run: go build -ldflags="-s -w" -o watchman.exe ./cmd/watchman
       - uses: actions/upload-artifact@v4
         with:
-          name: watchmen-windows
-          path: watchmen.exe
+          name: watchman-windows
+          path: watchman.exe
 ```
 
 ### Release Workflow (`.github/workflows/release.yml`)
@@ -915,12 +915,12 @@ jobs:
       - name: Build
         run: |
           $VERSION = "${{ github.ref_name }}"
-          go build -ldflags="-s -w -X main.Version=$VERSION" -o watchmen.exe ./cmd/watchmen
+          go build -ldflags="-s -w -X main.Version=$VERSION" -o watchman.exe ./cmd/watchman
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: watchmen.exe
+          files: watchman.exe
           generate_release_notes: true
 ```
 
@@ -1027,7 +1027,7 @@ jobs:
 ## ✅ Next Steps
 
 1. **Review this plan** - Xác nhận các features và timeline
-2. **Initialize project** - `go mod init github.com/username/watchmen`
+2. **Initialize project** - `go mod init github.com/username/watchman`
 3. **Setup CI/CD** - Push to GitHub, verify workflows
 4. **Start implementation** - Begin with Phase 1 (Foundation)
 
@@ -1040,7 +1040,7 @@ jobs:
 | **Go Version** | 1.24+ |
 | **Target OS** | Windows 10/11, Windows Server 2016+ |
 | **SQL Server** | 2012+ |
-| **Build Command** | `go build -ldflags="-s -w" -o watchmen.exe ./cmd/watchmen` |
+| **Build Command** | `go build -ldflags="-s -w" -o watchman.exe ./cmd/watchman` |
 | **Config Location** | `%ProgramData%\Watchmen\config.yaml` |
 | **Log Location** | `%ProgramData%\Watchmen\logs\` |
 

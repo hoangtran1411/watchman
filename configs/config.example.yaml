@@ -1,0 +1,140 @@
+# =============================================================================
+# WATCHMEN CONFIGURATION FILE
+# =============================================================================
+# Sử dụng YAML format với hỗ trợ:
+# - Environment variables: ${ENV_VAR} hoặc ${ENV_VAR:default}
+# - Multiple SQL Server instances
+# - Job filtering per server
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SQL Server Instances (MULTI-SERVER SUPPORT)
+# -----------------------------------------------------------------------------
+servers:
+  # Production Server - Example
+  - name: "PROD-SQL01"
+    enabled: true
+    host: "sql-prod-01.company.local"
+    port: 1433
+    database: "msdb"
+    auth:
+      type: "sql"  # sql | windows
+      username: "watchmen_svc"
+      password: "${PROD_SQL_PASSWORD}"  # Use environment variable
+    options:
+      encrypt: true
+      trust_server_certificate: false
+      connection_timeout: 30
+      query_timeout: 60
+    jobs:
+      include: []  # Empty = all jobs
+      exclude:
+        - "test_*"
+        - "dev_*"
+
+  # Staging Server - Example
+  - name: "STAGING-SQL01"
+    enabled: false  # Set to true when ready
+    host: "sql-staging-01.company.local"
+    port: 1433
+    database: "msdb"
+    auth:
+      type: "windows"  # Windows Authentication
+      username: ""
+      password: ""
+    options:
+      encrypt: false
+      trust_server_certificate: true
+      connection_timeout: 30
+      query_timeout: 60
+    jobs:
+      include:
+        - "ETL_*"
+        - "Backup_*"
+      exclude: []
+
+# -----------------------------------------------------------------------------
+# Scheduler Configuration
+# -----------------------------------------------------------------------------
+scheduler:
+  # Check time (24-hour format)
+  check_times:
+    - "08:00"  # Morning check
+    # - "14:00"  # Afternoon check (optional)
+    # - "20:00"  # Evening check (optional)
+  timezone: "Asia/Ho_Chi_Minh"
+  
+  # Retry configuration if check fails
+  retry:
+    enabled: true
+    max_attempts: 3
+    delay_seconds: 60
+
+# -----------------------------------------------------------------------------
+# Notification Configuration
+# -----------------------------------------------------------------------------
+notification:
+  app_id: "Watchmen"
+  icon_path: ""  # Optional: absolute path to .ico file
+  
+  # Grouping: combine multiple failures into single notification
+  grouping:
+    enabled: true
+    max_jobs_per_notification: 5  # Show max 5 jobs, then "and X more..."
+  
+  # Sound
+  sound:
+    enabled: true
+    type: "default"  # default, mail, reminder, sms, alarm
+
+# -----------------------------------------------------------------------------
+# Logging Configuration
+# -----------------------------------------------------------------------------
+logging:
+  level: "info"  # trace, debug, info, warn, error, fatal
+  format: "json"  # json, text
+  
+  # File logging
+  file:
+    enabled: true
+    path: "logs/watchmen.log"
+    max_size_mb: 10
+    max_backups: 5
+    max_age_days: 30
+    compress: true
+  
+  # Windows Event Log
+  event_log:
+    enabled: true
+    source: "Watchmen"
+
+# -----------------------------------------------------------------------------
+# Job Monitoring Settings
+# -----------------------------------------------------------------------------
+monitoring:
+  # Look back period for failed jobs
+  lookback_hours: 24
+  
+  # Job statuses to report
+  report_statuses:
+    - failed      # run_status = 0
+    - cancelled   # run_status = 3
+    # - retried   # run_status = 2 (uncomment to include)
+  
+  # Parallel checking (check multiple servers concurrently)
+  parallel:
+    enabled: true
+    max_concurrent: 5
+
+# -----------------------------------------------------------------------------
+# Auto-Update Configuration
+# -----------------------------------------------------------------------------
+update:
+  # Check for updates on service start
+  check_on_startup: true
+  
+  # GitHub repository for releases
+  github_repo: "hoangtran1411/watchman"
+  
+  # Pre-release versions
+  include_prerelease: false

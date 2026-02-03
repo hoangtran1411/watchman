@@ -1,3 +1,7 @@
+---
+trigger: manual
+---
+
 # Go Idioms Reference - Watchmen
 
 > **Full Reference Document** - Contains detailed idioms, code examples, and best practices.  

@@ -1,0 +1,190 @@
+# GolangCI-Lint Configuration for Watchmen
+# Schema: v2 (golangci-lint v2.0+)
+# Reference: https://golangci-lint.run/usage/configuration/
+
+version: "2"
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+  go: "1.24"
+
+linters:
+  default: none
+  enable:
+    # ==========================================================================
+    # Bugs & Error Detection
+    # ==========================================================================
+    - errcheck        # Check for unchecked errors
+    - gosec           # Security-oriented linting
+    - govet           # Reports suspicious constructs
+    - staticcheck     # Go static analysis
+    - typecheck       # Type checking
+    - bodyclose       # Check HTTP response body is closed
+    - nilerr          # Finds code that returns nil even if error is not nil
+    - noctx           # Finds HTTP requests without context.Context
+    - rowserrcheck    # Check sql.Rows.Err is checked
+    - sqlclosecheck   # Check sql.Rows and sql.Stmt are closed
+    - durationcheck   # Check for two durations multiplied together
+    - exportloopref   # Check for pointers to enclosing loop variables
+    - makezero        # Finds slice declarations not initialized with zero length
+    - nosprintfhostport # Check for misuse of Sprintf for host:port
+
+    # ==========================================================================
+    # Performance
+    # ==========================================================================
+    - prealloc        # Find slice declarations that could be preallocated
+
+    # ==========================================================================
+    # Style & Formatting
+    # ==========================================================================
+    - gofmt           # Check code is formatted
+    - goimports       # Check imports are formatted
+    - misspell        # Find commonly misspelled English words
+    - unconvert       # Remove unnecessary type conversions
+    - unused          # Find unused code
+    - ineffassign     # Detect ineffectual assignments
+    - whitespace      # Check for unnecessary newlines
+
+    # ==========================================================================
+    # Complexity
+    # ==========================================================================
+    - cyclop          # Checks function and package cyclomatic complexity
+    - funlen          # Detection of long functions
+    - gocognit        # Cognitive complexity
+    - gocyclo         # Cyclomatic complexity
+    - nestif          # Reports deeply nested if statements
+
+    # ==========================================================================
+    # Error Handling
+    # ==========================================================================
+    - errorlint       # Find problems with error wrapping
+    - wrapcheck       # Check errors are wrapped
+
+    # ==========================================================================
+    # Code Quality & Best Practices
+    # ==========================================================================
+    - goconst         # Find repeated strings that could be constants
+    - gocritic        # Opinionated linter
+    - revive          # Replacement for golint
+    - stylecheck      # Stylecheck is a replacement for golint
+
+    # ==========================================================================
+    # Documentation
+    # ==========================================================================
+    - godot           # Check comments end with a period
+
+linters-settings:
+  # Complexity settings
+  cyclop:
+    max-complexity: 15
+    skip-tests: true
+
+  funlen:
+    lines: 100
+    statements: 50
+    ignore-comments: true
+
+  gocognit:
+    min-complexity: 20
+
+  gocyclo:
+    min-complexity: 15
+
+  nestif:
+    min-complexity: 5
+
+  # Code quality settings
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+    ignore-tests: true
+
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment  # Too strict for this project
+
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+        arguments:
+          - check-private-receivers: true
+      - name: var-naming
+        severity: warning
+      - name: package-comments
+        severity: warning
+        disabled: true  # Will enable after initial development
+
+  stylecheck:
+    checks:
+      - all
+      - -ST1000  # Package comments (enable later)
+      - -ST1003  # Underscores in package names
+
+  errorlint:
+    errorf: true
+    errorf-multi: true
+    asserts: true
+    comparison: true
+
+  wrapcheck:
+    ignore-package-globs:
+      - github.com/hoangtran1411/watchman/*
+      - github.com/spf13/cobra
+      - github.com/spf13/viper
+
+  gosec:
+    excludes:
+      - G104  # Unhandled errors (already covered by errcheck)
+      - G304  # File path from variable (needed for config files)
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - hugeParam       # Too strict
+      - rangeValCopy    # Too strict for small structs
+
+  misspell:
+    locale: US
+
+  godot:
+    scope: declarations
+    capital: true
+
+  # Import settings
+  goimports:
+    local-prefixes:
+      - github.com/hoangtran1411/watchman
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/hoangtran1411/watchman
+
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 10
+
+  exclude-dirs:
+    - vendor
+    - .git
+    - testdata
+
+  exclude-files:
+    - ".*_test\\.go$"
+
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
