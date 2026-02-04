@@ -119,7 +119,7 @@ jobs:
           $COMMIT = "${{ github.sha }}"
           $DATE = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
           
-          go build -ldflags="-s -w -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildDate=$DATE" -o watchmen.exe ./cmd/watchmen
+          go build -ldflags="-s -w -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildDate=$DATE" -o watchmen.exe ./cmd/watchman
 
       - name: Verify binary
         run: |

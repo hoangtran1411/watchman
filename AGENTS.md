@@ -24,7 +24,7 @@ Always run these commands to verify your work:
 - **Coverage**: `make coverage` (checks statement coverage)
 
 ## 📁 Project Structure
-- `cmd/watchmen/`: Entry point and Cobra commands.
+- `cmd/watchman/`: Entry point and Cobra commands.
 - `internal/`:
   - `config/`: Configuration parsing and validation.
   - `database/`: SQL Server connection handling and queries.

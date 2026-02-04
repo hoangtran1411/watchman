@@ -22,14 +22,14 @@ This project is a **Windows Service for SQL Server Agent Job Monitoring** built 
   - Use kebab-case for all linter settings.
   - Exclusions move to `linters: exclusions: rules`.
 - Adhere to [Effective Go](https://go.dev/doc/effective_go).
-- Core logic in `internal/` packages. CLI commands in `cmd/watchmen/`.
+- Core logic in `internal/` packages. CLI commands in `cmd/watchman/`.
 
 ## Project Structure
 
 ```
-watchmen/
+watchman/
   cmd/
-    watchmen/
+    watchman/
       main.go            - CLI entry point
       root.go            - Root command
       install.go         - Install service command

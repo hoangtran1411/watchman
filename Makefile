@@ -8,7 +8,7 @@
 
 # Variables
 BINARY_NAME=watchmen.exe
-CMD_PATH=./cmd/watchmen
+CMD_PATH=./cmd/watchman
 VERSION=$(shell git describe --tags --always --dirty 2>NUL || echo "dev")
 COMMIT=$(shell git rev-parse --short HEAD 2>NUL || echo "unknown")
 BUILD_DATE=$(shell powershell -Command "Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ'")
