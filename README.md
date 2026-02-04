@@ -149,9 +149,12 @@ watchman check --output json
 
 ### Prerequisites
 
-- Go 1.24+
-- golangci-lint v2.0+
+- Go 1.25+
+- golangci-lint v2.8+
 - Windows 10/11 or Windows Server 2016+
+
+> [!TIP]
+> **AI Agents**: See [AGENTS.md](AGENTS.md) for specialized context and instructions.
 
 ### Build
 
