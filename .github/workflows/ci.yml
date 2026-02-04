@@ -87,7 +87,7 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          $coverage = go tool cover -func=coverage.out | Select-String "total:" | ForEach-Object { ($_ -split "\s+")[2] -replace '%','' }
+          $coverage = go tool cover -func coverage.out | Select-String "total:" | ForEach-Object { ($_ -split "\s+")[2] -replace '%','' }
           Write-Host "Total coverage: $coverage%"
           if ([float]$coverage -lt 60) {
             Write-Host "::warning::Coverage is below 60%: $coverage%"

@@ -56,11 +56,11 @@ test-short:
 ## coverage: Show test coverage
 coverage: test
 	@echo "Coverage report:"
-	go tool cover -func=coverage.out
+	go tool cover -func coverage.out
 
 ## coverage-html: Open coverage in browser
 coverage-html: test
-	go tool cover -html=coverage.out
+	go tool cover -html coverage.out
 
 # =============================================================================
 # Linting & Formatting
